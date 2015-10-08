@@ -24,21 +24,14 @@ GameThread = function(doc_){
 	var ctx;
 
 	(function(){
-		this.doc = doc_.document;
+		doc = doc_.document;
 		console.log("init");
-		this.blocks = [];
-		this.gameCanvas = this.doc.getElementById('game_canvas');
-		// this.gameCanvas.onclick = function(){
-		// 		if(newGame.isLive()){
-		// 			newGame.stop();	
-		// 		}else{
-		// 			newGame.run();
-		// 		}
-		// 	}
-		this.ctx = this.gameCanvas.getContext('2d');
-		console.log(this.ctx);
+		blocks = [];
+		gameCanvas = doc.getElementById('game_canvas');
+		ctx = gameCanvas.getContext('2d');
+		console.log(ctx);
 		
-		this.doc.body.onkeydown = function(evt){
+		doc.body.onkeydown = function(evt){
 			createNewBlock();	
 			move(evt.keyCode);
 		};
@@ -46,87 +39,155 @@ GameThread = function(doc_){
 
 	function createNewBlock(){
 		var newBlock = new Block();
-		console.log(this.blocks);
-		for(var i in this.blocks){
-			if(this.blocks[i].x_grid == newBlock.x_grid
-				&& this.blocks[i].y_grid == newBlock.y_grid){
+		console.log(blocks);
+		for(var i in blocks){
+			if(blocks[i].x_grid == newBlock.x_grid
+				&& blocks[i].y_grid == newBlock.y_grid){
 				return;
 			}
 		}
 
-		this.blocks.push(newBlock);
+		blocks.push(newBlock);
 		
 	}
 
-	GameThread.prototype.run = function(){
-		console.log(this.ctx);
-		console.log("run");
-		this.timer = setInterval(this.loop, 1000/24);	
+	function run(){
+		console.log("inside run");
+		timer = setInterval(loop, 1000/24);	
 		
-		this.isLiveFlag = true;
-	};
+		isLiveFlag = true;
 
-	GameThread.prototype.loop = function(){
-		console.log("test "+this.blocks.length);
-		this.ctx.clearRect(0,0,400,400);
-		for(i in this.blocks){
-			console.log('draw rect! - '+this.blocks[i].width)
-			this.blocks[i].move();
-			this.ctx.rect(
-				this.blocks[i].x_cur_pos,
-				this.blocks[i].y_cur_pos,
-				this.blocks[i].width,
-				this.blocks[i].height
+		for(i in blocks){
+			blocks[i].move();
+		}
+	}
+
+	
+
+	function loop(){
+		clear();
+		for(i in blocks){
+			console.log('draw rect! - '+blocks[i].xCurPos());
+			blocks[i].move();
+			ctx.rect(
+				blocks[i].xCurPos(),
+				blocks[i].yCurPos(),
+				blocks[i].width(),
+				blocks[i].height()
 				)
-			this.ctx.stroke();
-			if(!this.blocks[i].isMoving){
-				this.stop();
+			ctx.stroke();
+			if(!blocks[i].isMoving()){
+				stop();
 			}
 		}
 	};
 
-	GameThread.prototype.stop = function(){
+	function stop(){
 		console.log("stop");
-		clearInterval(this.timer);
-		this.isLiveFlag = false;
-	};
+		clearInterval(timer);
+		isLiveFlag = false;
+	}
 
-	GameThread.prototype.isLive = function(){
-		return this.isLiveFlag;
-	};
+	function clear(){
+		console.log("clear");
+		ctx.clearRect(0,0,400,400);
+	}
 
 	function move(evt){
-		console.log(evt);
 		switch(evt){
 			case 37:
-				console.log(this.blocks);
-				for(i in this.blocks){
-					this.blocks[0].x_grid = 3;
+				console.log(blocks);
+				for(i in blocks){
+					blocks[0].xGrid(3);
 				}
 			break;
 		}
-		newGame.run();		
+		run();		
+	}
+
+	GameThread.prototype.run = function(){
+		run();
+	};
+
+	GameThread.prototype.stop = function(){
+		stop();
+	};
+
+	GameThread.prototype.isLive = function(){
+		return isLiveFlag;
+	};
+
+	GameThread.prototype.clear = function(){
+		clear();
 	}
 };
 
 Block = function(){
-	this.width = 20;
-	this.height = 20;
-	this.x_grid = 0;
-	this.y_grid = 0;
-	this.x_cur_pos = 0;
-	this.y_cur_pos = 0;
-	this.isMoving = false;
-	this.value = 2;
+	var width = 20;
+	var height = 20;
+	var x_grid = 0;
+	var y_grid = 0;
+	var x_cur_pos = 0;
+	var y_cur_pos = 0;
+	var isMoving = false;
+	var value = 2;
 
 	Block.prototype.move = function(){
-		console.log("move!");
-		if(this.x_grid*this.width > this.x_cur_pos){
-			this.isMoving = true;
-			this.x_cur_pos += 1;	
-			console.log("x : "+this.x_cur_pos);
+		if(x_grid*width > x_cur_pos){
+			isMoving = true;
+			x_cur_pos += 4;	
 		}else{
-			this.isMoving = false;
+			isMoving = false;
 		}
+	}
+
+	Block.prototype.xGrid = function(v){
+		if(isNaN(v)){
+			return x_grid;
+		}else{
+			x_grid = v;
+		}
+	}
+
+	Block.prototype.xCurPos = function(v){
+		if(isNaN(v)){
+			return x_cur_pos;	
+		}else{
+			x_cur_pos = v;
+		}
+		
+	}
+
+	Block.prototype.yCurPos = function(v){
+		if(isNaN(v)){
+			return y_cur_pos;	
+		}else{
+			y_cur_pos = v;
+		}
+	}
+
+	Block.prototype.width = function(v){
+		if(isNaN(v)){
+			return width;	
+		}else{
+			width = v;
+		}
+	}
+
+	Block.prototype.height = function(v){
+		if(isNaN(v)){
+			return height;	
+		}else{
+			height = v;
+		}
+	}
+
+	Block.prototype.isMoving = function(v){
+		if(v === undefined){
+			return isMoving;	
+		}else{
+			isMoving = v;
+		}
+		
 	}
 };

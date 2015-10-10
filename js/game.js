@@ -29,7 +29,6 @@ GameThread = function(doc_){
 		blocks = [];
 		gameCanvas = doc.getElementById('game_canvas');
 		ctx = gameCanvas.getContext('2d');
-		console.log(ctx);
 		
 		doc.body.onkeydown = function(evt){
 			createNewBlock();	
@@ -39,7 +38,6 @@ GameThread = function(doc_){
 
 	function createNewBlock(){
 		var newBlock = new Block();
-		console.log(blocks);
 		for(var i in blocks){
 			if(blocks[i].x_grid == newBlock.x_grid
 				&& blocks[i].y_grid == newBlock.y_grid){
@@ -53,21 +51,26 @@ GameThread = function(doc_){
 
 	function run(){
 		console.log("inside run");
-		timer = setInterval(loop, 1000/24);	
+		if(timer === undefined){
+			timer = setInterval(loop, 1000/100);	
 		
-		isLiveFlag = true;
+			isLiveFlag = true;
 
-		for(i in blocks){
-			blocks[i].move();
+			for(i in blocks){
+				blocks[i].move();
+			}
+		}else{
+			console.log("thread is already started.");
 		}
+		
 	}
 
 	
 
 	function loop(){
 		clear();
+		ctx.beginPath();
 		for(i in blocks){
-			console.log('draw rect! - '+blocks[i].xCurPos());
 			blocks[i].move();
 			ctx.rect(
 				blocks[i].xCurPos(),
@@ -80,25 +83,25 @@ GameThread = function(doc_){
 				stop();
 			}
 		}
+		ctx.closePath();
 	};
 
 	function stop(){
 		console.log("stop");
 		clearInterval(timer);
+		timer = undefined;
 		isLiveFlag = false;
 	}
 
 	function clear(){
-		console.log("clear");
 		ctx.clearRect(0,0,400,400);
 	}
 
 	function move(evt){
 		switch(evt){
 			case 37:
-				console.log(blocks);
 				for(i in blocks){
-					blocks[0].xGrid(3);
+					blocks[i].xGrid(3);
 				}
 			break;
 		}
@@ -133,12 +136,7 @@ Block = function(){
 	var value = 2;
 
 	Block.prototype.move = function(){
-		if(x_grid*width > x_cur_pos){
-			isMoving = true;
-			x_cur_pos += 4;	
-		}else{
-			isMoving = false;
-		}
+		x_cur_pos += 1;	
 	}
 
 	Block.prototype.xGrid = function(v){
@@ -183,11 +181,6 @@ Block = function(){
 	}
 
 	Block.prototype.isMoving = function(v){
-		if(v === undefined){
-			return isMoving;	
-		}else{
-			isMoving = v;
-		}
-		
+		return (x_grid*width > x_cur_pos);
 	}
 };

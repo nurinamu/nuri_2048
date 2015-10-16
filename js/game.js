@@ -69,9 +69,14 @@ GameThread = function(doc_){
 
 	function loop(){
 		clear();
-		ctx.beginPath();
+		
 		for(i in blocks){
+			if(!blocks[i].isMoving()){
+				stop();
+			}
+
 			blocks[i].move();
+			ctx.beginPath();
 			ctx.rect(
 				blocks[i].xCurPos(),
 				blocks[i].yCurPos(),
@@ -79,11 +84,12 @@ GameThread = function(doc_){
 				blocks[i].height()
 				)
 			ctx.stroke();
-			if(!blocks[i].isMoving()){
-				stop();
-			}
+			ctx.closePath();
+			ctx.font="40px dotum";
+			ctx.fillText(blocks[i].number(), blocks[i].xCurPos()+(blocks[i].width()/2), blocks[i].yCurPos()+(blocks[i].height()/2));
+			
 		}
-		ctx.closePath();
+		
 	};
 
 	function stop(){
@@ -136,6 +142,14 @@ Block = function(){
 	var value = 2;
 
 	var aging = 0.1;
+
+	Block.prototype.number = function(v){
+		if(v){
+			value = v;
+			return;
+		}
+		return value;
+	}
 
 	Block.prototype.move = function(){
 		if(Math.abs((x_grid*width)-x_cur_pos) < 2){

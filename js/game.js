@@ -94,7 +94,7 @@ GameThread = function(doc_){
 	}
 
 	function clear(){
-		ctx.clearRect(0,0,400,400);
+		ctx.clearRect(0,0,600,600);
 	}
 
 	function move(evt){
@@ -126,8 +126,8 @@ GameThread = function(doc_){
 };
 
 Block = function(){
-	var width = 20;
-	var height = 20;
+	var width = 120;
+	var height = 120;
 	var x_grid = 0;
 	var y_grid = 0;
 	var x_cur_pos = 0;
@@ -135,8 +135,14 @@ Block = function(){
 	var isMoving = false;
 	var value = 2;
 
+	var aging = 0.1;
+
 	Block.prototype.move = function(){
-		x_cur_pos += 1;	
+		if(Math.abs((x_grid*width)-x_cur_pos) < 2){
+			x_cur_pos = (x_grid*width);
+		}else{
+			x_cur_pos = x_cur_pos + aging*((x_grid*width)-x_cur_pos);		
+		}
 	}
 
 	Block.prototype.xGrid = function(v){

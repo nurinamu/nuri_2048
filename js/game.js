@@ -29,9 +29,12 @@ GameThread = function(doc_){
 		blocks = [];
 		gameCanvas = doc.getElementById('game_canvas');
 		ctx = gameCanvas.getContext('2d');
+
+		//initial block
+		createNewBlock();
+		loop();
 		
 		doc.body.onkeydown = function(evt){
-			createNewBlock();	
 			move(evt.keyCode);
 		};
 	})();
@@ -51,7 +54,7 @@ GameThread = function(doc_){
 
 	function run(){
 		console.log("inside run");
-		if(timer === undefined){
+		if(!isLiveFlag && timer === undefined){
 			timer = setInterval(loop, 1000/100);	
 		
 			isLiveFlag = true;
@@ -69,10 +72,12 @@ GameThread = function(doc_){
 
 	function loop(){
 		clear();
+
+		var isMoving = false;
 		
 		for(i in blocks){
-			if(!blocks[i].isMoving()){
-				stop();
+			if(blocks[i].isMoving()){
+				isMoving = true;
 			}
 
 			blocks[i].move();
@@ -89,6 +94,10 @@ GameThread = function(doc_){
 			ctx.fillText(blocks[i].number(), blocks[i].xCurPos()+(blocks[i].width()/2), blocks[i].yCurPos()+(blocks[i].height()/2));
 			
 		}
+
+		if(!isMoving){
+			stop();
+		}
 		
 	};
 
@@ -97,6 +106,8 @@ GameThread = function(doc_){
 		clearInterval(timer);
 		timer = undefined;
 		isLiveFlag = false;
+
+		createNewBlock();
 	}
 
 	function clear(){

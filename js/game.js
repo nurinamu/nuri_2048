@@ -41,13 +41,13 @@ GameThread = function(doc_){
 
 	function createNewBlock(){
 		var newBlock = new Block();
+		newBlock.pos(0);
 		for(var i in blocks){
-			if(blocks[i].x_grid == newBlock.x_grid
-				&& blocks[i].y_grid == newBlock.y_grid){
+			if(blocks[i].xGrid() == newBlock.xGrid()
+				&& blocks[i].yGrid() == newBlock.yGrid()){
 				return;
 			}
 		}
-
 		blocks.push(newBlock);
 		
 	}
@@ -143,16 +143,29 @@ GameThread = function(doc_){
 };
 
 Block = function(){
+	var value = 2;
+	var pos = 0;
+
 	var width = 120;
 	var height = 120;
-	var x_grid = 0;
-	var y_grid = 0;
 	var x_cur_pos = 0;
 	var y_cur_pos = 0;
 	var isMoving = false;
-	var value = 2;
+	
+	var x_grid;
+	var y_grid = Math.floor(pos/gameGrid);
 
 	var aging = 0.1;
+
+	Block.prototype.pos = function(v){
+		if(v){
+			pos = v;
+			x_grid = pos % gameGrid;
+			y_grid = Math.floor(pos/gameGrid);
+		}else{
+			return pos;
+		}
+	}
 
 	Block.prototype.number = function(v){
 		if(v){

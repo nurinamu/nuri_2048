@@ -26,7 +26,7 @@ GameThread = function(doc_){
 	(function(){
 		doc = doc_.document;
 		console.log("init");
-		blocks = [];
+		blocks = new Array();
 		gameCanvas = doc.getElementById('game_canvas');
 		ctx = gameCanvas.getContext('2d');
 
@@ -41,15 +41,18 @@ GameThread = function(doc_){
 
 	function createNewBlock(){
 		var newBlock = new Block();
-		newBlock.pos(0);
+		newBlock.pos(randomNum(gameGrid*gameGrid));
 		for(var i in blocks){
-			if(blocks[i].xGrid() == newBlock.xGrid()
-				&& blocks[i].yGrid() == newBlock.yGrid()){
+			if(blocks[i].pos() == newBlock.pos()){
+				console.log("skip");
 				return;
 			}
 		}
 		blocks.push(newBlock);
-		
+	}
+
+	function randomNum(max){
+		return Math.floor(Math.random()*max)%max;
 	}
 
 	function run(){
@@ -76,6 +79,7 @@ GameThread = function(doc_){
 		var isMoving = false;
 		
 		for(i in blocks){
+			console.log("["+blocks[i].pos()+"]isMoving["+i+"]"+blocks[i].isMoving());
 			if(blocks[i].isMoving()){
 				isMoving = true;
 			}
@@ -92,7 +96,6 @@ GameThread = function(doc_){
 			ctx.closePath();
 			ctx.font="40px dotum";
 			ctx.fillText(blocks[i].number(), blocks[i].xCurPos()+(blocks[i].width()/2), blocks[i].yCurPos()+(blocks[i].height()/2));
-			
 		}
 
 		if(!isMoving){
@@ -118,11 +121,11 @@ GameThread = function(doc_){
 		switch(evt){
 			case 37:
 				for(i in blocks){
-					blocks[i].xGrid(3);
+					blocks[i].moveTo(3);
 				}
+				run();		
 			break;
 		}
-		run();		
 	}
 
 	GameThread.prototype.run = function(){
@@ -143,96 +146,117 @@ GameThread = function(doc_){
 };
 
 Block = function(){
-	var value = 2;
-	var pos = 0;
+	this._value = 2;
+	this._pos = 0;
 
-	var width = 120;
-	var height = 120;
-	var x_cur_pos = 0;
-	var y_cur_pos = 0;
-	var isMoving = false;
+	this._width = 120;
+	this._height = 120;
+	this._x_cur_pos = 0;
+	this._y_cur_pos = 0;
+	this._isMoving = false;
 	
-	var x_grid;
-	var y_grid = Math.floor(pos/gameGrid);
+	this._x_grid;
+	this._y_grid;
 
-	var aging = 0.1;
+	this._aging = 0.1;
+};
 
-	Block.prototype.pos = function(v){
+Block.prototype = {
+	pos : function(v){
 		if(v){
-			pos = v;
-			x_grid = pos % gameGrid;
-			y_grid = Math.floor(pos/gameGrid);
+			console.log(this._pos+"==>"+v);
+			this._pos = v;
+			this._x_grid = this._pos % gameGrid;
+			this._y_grid = Math.floor(this._pos/gameGrid);
+			this._x_cur_pos = this._x_grid*this._width;
+			this._y_cur_pos = this._y_grid*this._height;
 		}else{
-			return pos;
+			return this._pos;
 		}
-	}
-
-	Block.prototype.number = function(v){
+	},
+	number :  function(v){
 		if(v){
-			value = v;
+			this._value = v;
 			return;
 		}
-		return value;
-	}
-
-	Block.prototype.move = function(){
-		if(Math.abs((x_grid*width)-x_cur_pos) < 2){
-			x_cur_pos = (x_grid*width);
+		return this._value;
+	},
+	moveTo : function(v){
+		this._pos = v;
+		this._x_grid = this._pos % gameGrid;
+		this._y_grid = Math.floor(this._pos/gameGrid);
+	},
+	move : function(){
+		if(Math.abs((this._x_grid*this._width)-this._x_cur_pos) < 2){
+			this._x_cur_pos = (this._x_grid*this._width);
 		}else{
-			x_cur_pos = x_cur_pos + aging*((x_grid*width)-x_cur_pos);		
+			this._x_cur_pos = this._x_cur_pos + this.aging*((this._x_grid*this._width)-this._x_cur_pos);		
 		}
-	}
-
-	Block.prototype.xGrid = function(v){
+	},
+	xGrid : function(v){
 		if(isNaN(v)){
-			return x_grid;
+			return this._x_grid;
 		}else{
-			x_grid = v;
+			this._x_grid = v;
 		}
-	}
-
-	Block.prototype.yGrid = function(v){
+	},
+	yGrid : function(v){
 		if(isNaN(v)){
-			return y_grid;
+			return this._y_grid;
 		}else{
-			y_grid = v;
+			this._y_grid = v;
 		}
-	}
-
-	Block.prototype.xCurPos = function(v){
+	},
+	xCurPos : function(v){
 		if(isNaN(v)){
-			return x_cur_pos;	
+			return this._x_cur_pos;	
 		}else{
-			x_cur_pos = v;
+			this._x_cur_pos = v;
 		}
 		
-	}
-
-	Block.prototype.yCurPos = function(v){
+	},
+	yCurPos : function(v){
 		if(isNaN(v)){
-			return y_cur_pos;	
+			return this._y_cur_pos;	
 		}else{
-			y_cur_pos = v;
+			this._y_cur_pos = v;
 		}
-	}
-
-	Block.prototype.width = function(v){
+	},
+	width : function(v){
 		if(isNaN(v)){
-			return width;	
+			return this._width;	
 		}else{
-			width = v;
+			this._width = v;
 		}
-	}
-
-	Block.prototype.height = function(v){
+	},
+	height : function(v){
 		if(isNaN(v)){
-			return height;	
+			return this._height;	
 		}else{
-			height = v;
+			this._height = v;
 		}
+	},
+	isMoving : function(v){
+		return (this._x_grid*this._width > this._x_cur_pos);
 	}
 
-	Block.prototype.isMoving = function(v){
-		return (x_grid*width > x_cur_pos);
-	}
-};
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

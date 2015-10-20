@@ -191,6 +191,14 @@ Block = function(){
 		}
 	}
 
+	Block.prototype.yGrid = function(v){
+		if(isNaN(v)){
+			return y_grid;
+		}else{
+			y_grid = v;
+		}
+	}
+
 	Block.prototype.xCurPos = function(v){
 		if(isNaN(v)){
 			return x_cur_pos;	

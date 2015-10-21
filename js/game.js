@@ -40,6 +40,11 @@ GameThread = function(doc_){
 	})();
 
 	function createNewBlock(){
+		if(blocks.length >= gameGrid*gameGrid){
+			console.log("game is end!");
+			return;
+		}
+
 		var newBlock = new Block();
 		newBlock.pos(randomNum(gameGrid*gameGrid));
 		for(var i in blocks){
@@ -48,6 +53,7 @@ GameThread = function(doc_){
 				return;
 			}
 		}
+		console.log("created["+blocks.length+"] : "+newBlock.pos());
 		blocks.push(newBlock);
 	}
 
@@ -62,7 +68,7 @@ GameThread = function(doc_){
 		
 			isLiveFlag = true;
 
-			for(i in blocks){
+			for(var i in blocks){
 				blocks[i].move();
 			}
 		}else{
@@ -78,7 +84,7 @@ GameThread = function(doc_){
 
 		var isMoving = false;
 		
-		for(i in blocks){
+		for(var i in blocks){
 			console.log("["+blocks[i].pos()+"]isMoving["+i+"]"+blocks[i].isMoving());
 			if(blocks[i].isMoving()){
 				isMoving = true;
@@ -120,7 +126,7 @@ GameThread = function(doc_){
 	function move(evt){
 		switch(evt){
 			case 37:
-				for(i in blocks){
+				for(var i in blocks){
 					blocks[i].moveTo(3);
 				}
 				run();		
@@ -182,6 +188,8 @@ Block.prototype = {
 		return this._value;
 	},
 	moveTo : function(v){
+		this._x_cur_pos = this._x_grid*this._width;
+		this._y_cur_pos = this._y_grid*this._height;
 		this._pos = v;
 		this._x_grid = this._pos % gameGrid;
 		this._y_grid = Math.floor(this._pos/gameGrid);
@@ -190,7 +198,7 @@ Block.prototype = {
 		if(Math.abs((this._x_grid*this._width)-this._x_cur_pos) < 2){
 			this._x_cur_pos = (this._x_grid*this._width);
 		}else{
-			this._x_cur_pos = this._x_cur_pos + this.aging*((this._x_grid*this._width)-this._x_cur_pos);		
+			this._x_cur_pos = this._x_cur_pos + this._aging*((this._x_grid*this._width)-this._x_cur_pos);		
 		}
 	},
 	xGrid : function(v){

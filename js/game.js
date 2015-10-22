@@ -85,7 +85,7 @@ GameThread = function(doc_){
 		var isMoving = false;
 		
 		for(var i in blocks){
-			console.log("["+blocks[i].pos()+"]isMoving["+i+"]"+blocks[i].isMoving());
+			// console.log("["+blocks[i].pos()+"]isMoving["+i+"]"+blocks[i].isMoving());
 			if(blocks[i].isMoving()){
 				isMoving = true;
 			}
@@ -123,12 +123,20 @@ GameThread = function(doc_){
 		ctx.clearRect(0,0,600,600);
 	}
 
-	function move(evt){
-		switch(evt){
-			case 37:
+	function move(keyCode){
+		console.log(keyCode);
+		switch(keyCode){
+			case 37 : //to left
 				for(var i in blocks){
 					var curPos = blocks[i].pos();
-					blocks[i].moveTo(curPos + (gameGrid-1)-(curPos%gameGrid));
+					blocks[i].moveTo(curPos - (curPos%gameGrid));
+				}
+				run();		
+			break;	
+			case 39 : //to right
+				for(var i in blocks){
+					var curPos = blocks[i].pos();
+					blocks[i].moveTo(curPos + (gameGrid - 1) - (curPos%gameGrid));
 				}
 				run();		
 			break;
@@ -189,6 +197,7 @@ Block.prototype = {
 		return this._value;
 	},
 	moveTo : function(v){
+		console.log("moveTo : "+v);
 		this._x_cur_pos = this._x_grid*this._width;
 		this._y_cur_pos = this._y_grid*this._height;
 		this._pos = v;
@@ -246,7 +255,7 @@ Block.prototype = {
 		}
 	},
 	isMoving : function(v){
-		return (this._x_grid*this._width > this._x_cur_pos);
+		return (this._x_grid*this._width != this._x_cur_pos);
 	}
 
 

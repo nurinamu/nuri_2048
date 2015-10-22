@@ -127,7 +127,8 @@ GameThread = function(doc_){
 		switch(evt){
 			case 37:
 				for(var i in blocks){
-					blocks[i].moveTo(3);
+					var curPos = blocks[i].pos();
+					blocks[i].moveTo(curPos + (gameGrid-1)-(curPos%gameGrid));
 				}
 				run();		
 			break;

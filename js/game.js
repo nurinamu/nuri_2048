@@ -133,12 +133,28 @@ GameThread = function(doc_){
 				}
 				run();		
 			break;	
+			case 38 : //to top
+				for(var i in blocks){
+					var curPos = blocks[i].pos();
+					blocks[i].moveTo(curPos%gameGrid);
+				}
+				run();		
+			break;
 			case 39 : //to right
 				for(var i in blocks){
 					var curPos = blocks[i].pos();
 					blocks[i].moveTo(curPos + (gameGrid - 1) - (curPos%gameGrid));
 				}
 				run();		
+			break;
+			case 40: //to down
+				for(var i in blocks){
+					var curPos = blocks[i].pos();
+					blocks[i].moveTo((gameGrid-1)*gameGrid+(curPos%gameGrid));
+				}
+				run();
+			break;
+			default :
 			break;
 		}
 	}
@@ -210,6 +226,11 @@ Block.prototype = {
 		}else{
 			this._x_cur_pos = this._x_cur_pos + this._aging*((this._x_grid*this._width)-this._x_cur_pos);		
 		}
+		if(Math.abs((this._y_grid*this._height)-this._y_cur_pos) < 2){
+			this._y_cur_pos = (this._y_grid*this._height);
+		}else{
+			this._y_cur_pos = this._y_cur_pos + this._aging*((this._y_grid*this._height)-this._y_cur_pos);		
+		}
 	},
 	xGrid : function(v){
 		if(isNaN(v)){
@@ -255,7 +276,7 @@ Block.prototype = {
 		}
 	},
 	isMoving : function(v){
-		return (this._x_grid*this._width != this._x_cur_pos);
+		return (this._x_grid*this._width != this._x_cur_pos) || (this._y_grid*this._height != this._y_cur_pos);
 	}
 
 

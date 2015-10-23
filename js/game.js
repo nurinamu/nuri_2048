@@ -26,13 +26,13 @@ GameThread = function(doc_){
 	(function(){
 		doc = doc_.document;
 		console.log("init");
-		blocks = new Array();
+		blocks = {};
 		gameCanvas = doc.getElementById('game_canvas');
 		ctx = gameCanvas.getContext('2d');
 
 		//initial block
 		createNewBlock();
-		loop();
+		drawCanvas();
 		
 		doc.body.onkeydown = function(evt){
 			move(evt.keyCode);
@@ -40,21 +40,24 @@ GameThread = function(doc_){
 	})();
 
 	function createNewBlock(){
-		if(blocks.length >= gameGrid*gameGrid){
+		if(Object.keys(blocks).length >= gameGrid*gameGrid){
 			console.log("game is end!");
 			return;
 		}
 
-		var newBlock = new Block();
-		newBlock.pos(randomNum(gameGrid*gameGrid));
-		for(var i in blocks){
-			if(blocks[i].pos() == newBlock.pos()){
-				console.log("skip");
-				return;
-			}
+		var newPos = randomNum(gameGrid*gameGrid);
+		if(blocks[newPos]){
+			console.log("skip");
+			return;
 		}
-		console.log("created["+blocks.length+"] : "+newBlock.pos());
-		blocks.push(newBlock);
+		var newBlock = new Block();
+		setPos(newBlock, newPos);
+	}
+
+	function setPos(block, newPos){
+		block.pos(newPos);
+		blocks[newPos] = block;
+		console.log("created["+(Object.keys(blocks).length)+"] : "+block.pos());
 	}
 
 	function randomNum(max){
@@ -69,7 +72,9 @@ GameThread = function(doc_){
 			isLiveFlag = true;
 
 			for(var i in blocks){
-				blocks[i].move();
+				if(blocks != null){
+					blocks[i].move();	
+				}
 			}
 		}else{
 			console.log("thread is already started.");
@@ -82,9 +87,18 @@ GameThread = function(doc_){
 	function loop(){
 		clear();
 
-		var isMoving = false;
+		if(!drawCanvas()){
+			stop();
+		}
 		
+	};
+
+	function drawCanvas(){
+		var isMoving = false;
 		for(var i in blocks){
+			if(!blocks[i]){
+				continue;
+			}
 			// console.log("["+blocks[i].pos()+"]isMoving["+i+"]"+blocks[i].isMoving());
 			if(blocks[i].isMoving()){
 				isMoving = true;
@@ -103,12 +117,8 @@ GameThread = function(doc_){
 			ctx.font="40px dotum";
 			ctx.fillText(blocks[i].number(), blocks[i].xCurPos()+(blocks[i].width()/2), blocks[i].yCurPos()+(blocks[i].height()/2));
 		}
-
-		if(!isMoving){
-			stop();
-		}
-		
-	};
+		return isMoving;
+	}
 
 	function stop(){
 		console.log("stop");
@@ -117,10 +127,20 @@ GameThread = function(doc_){
 		isLiveFlag = false;
 
 		createNewBlock();
+		drawCanvas();
 	}
 
 	function clear(){
 		ctx.clearRect(0,0,600,600);
+	}
+
+	function moveTo(blocks, oldPos, newPos){
+		if(oldPos != newPos){
+			blocks[newPos] = blocks[oldPos];
+			delete blocks[oldPos];
+			blocks[newPos].moveTo(newPos);	
+			console.log(oldPos+"->"+newPos);
+		}
 	}
 
 	function move(keyCode){
@@ -128,29 +148,29 @@ GameThread = function(doc_){
 		switch(keyCode){
 			case 37 : //to left
 				for(var i in blocks){
-					var curPos = blocks[i].pos();
-					blocks[i].moveTo(curPos - (curPos%gameGrid));
+					i = parseInt(i);
+					moveTo(blocks, i, (i - (i%gameGrid)));
 				}
 				run();		
 			break;	
 			case 38 : //to top
 				for(var i in blocks){
-					var curPos = blocks[i].pos();
-					blocks[i].moveTo(curPos%gameGrid);
+					i = parseInt(i);
+					moveTo(blocks, i, (i%gameGrid));
 				}
 				run();		
 			break;
 			case 39 : //to right
 				for(var i in blocks){
-					var curPos = blocks[i].pos();
-					blocks[i].moveTo(curPos + (gameGrid - 1) - (curPos%gameGrid));
+					i = parseInt(i);
+					moveTo(blocks, i,(i + (gameGrid - 1) - (i%gameGrid)));
 				}
 				run();		
 			break;
 			case 40: //to down
 				for(var i in blocks){
-					var curPos = blocks[i].pos();
-					blocks[i].moveTo((gameGrid-1)*gameGrid+(curPos%gameGrid));
+					i = parseInt(i);
+					moveTo(blocks, i, ((gameGrid-1)*gameGrid+(i%gameGrid)));
 				}
 				run();
 			break;

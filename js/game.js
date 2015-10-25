@@ -115,7 +115,7 @@ GameThread = function(doc_){
 			ctx.stroke();
 			ctx.closePath();
 			ctx.font="40px dotum";
-			ctx.fillText(blocks[i].number(), blocks[i].xCurPos()+(blocks[i].width()/2), blocks[i].yCurPos()+(blocks[i].height()/2));
+			ctx.fillText(blocks[i].number(), blocks[i].xCurPos()+(blocks[i].width()/2)-10, blocks[i].yCurPos()+(blocks[i].height()/2)+15);
 		}
 		return isMoving;
 	}

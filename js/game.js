@@ -152,14 +152,14 @@ GameThread = function(doc_){
 				blocks[newPos+'_d'] = blocks[newPos];
 			}else{
 				if(altPos != undefined && !isNaN(altPos)){
+					if(altPos == oldPos) return;
 					newPos = altPos;	
 				}
 			}
 
 			blocks[newPos] = blocks[oldPos];
 			delete blocks[oldPos];
-			blocks[newPos].moveTo(newPos);
-			console.log(oldPos+"->"+newPos);
+			blocks[newPos].moveTo(newPos);	
 		}
 	}
 

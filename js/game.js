@@ -144,18 +144,23 @@ GameThread = function(doc_){
 
 	function mergeOrMove(blocks, oldPos, newPos, altPos){
 		if(oldPos != newPos){
-			if(blocks[newPos] 
-				&& blocks[newPos].value() == blocks[oldPos].value()){				
-				blocks[newPos].isLive(false);
-				blocks[newPos].value(blocks[newPos].value()*2);
-				blocks[oldPos].value(blocks[oldPos].value()*2);
-				blocks[newPos+'_d'] = blocks[newPos];
-			}else{
-				if(altPos != undefined && !isNaN(altPos)){
-					if(altPos == oldPos) return;
-					newPos = altPos;	
+			if(blocks[newPos]){//block이 목표점에 있는 경우
+				if(blocks[newPos].value() == blocks[oldPos].value()){//머지?
+					blocks[newPos].isLive(false);
+					blocks[newPos].value(blocks[newPos].value()*2);
+					blocks[oldPos].value(blocks[oldPos].value()*2);
+					blocks[newPos+'_d'] = blocks[newPos];
+				}else{//alt
+					if(altPos != undefined && !isNaN(altPos)){
+						//alt가 이전 값이랑 동일하면 do nothing!
+						if(altPos == oldPos) return;
+						newPos = altPos;	
+					}
 				}
+			}else{	//block이 목표점에 없는 경우
+
 			}
+			
 
 			blocks[newPos] = blocks[oldPos];
 			delete blocks[oldPos];
@@ -198,11 +203,9 @@ GameThread = function(doc_){
 							dest = z;
 						}
 					}
-
 					
-					alt = y*gameGrid+alt;
 					var i = y*gameGrid+dest;
-					mergeOrMove(blocks, y*gameGrid+x, i, alt);	
+					mergeOrMove(blocks, y*gameGrid+x, i, y*gameGrid+alt);	
 				}
 				
 			}
@@ -212,26 +215,81 @@ GameThread = function(doc_){
 	}
 
 	function mergeToTop(){
-		for(var i in blocks){
-					i = parseInt(i);
-					mergeOrMove(blocks, i, (i%gameGrid));
+		for(var y=1;y<gameGrid;y++){
+			for(var x=0;x<gameGrid;x++){
+				if(blocks[y*gameGrid+x]){
+					var dest = y;
+					var alt;
+					for(var z=y-1;z>=0;z--){
+						if(blocks[z*gameGrid+x]){
+							alt = dest;
+							dest = z;
+							break;
+						}else{
+							dest = z;
+						}
+					}
+					
+					var i = dest*gameGrid + x;
+					mergeOrMove(blocks, y*gameGrid+x, i, alt*gameGrid + x);	
 				}
-				run();		
+				
+			}
+		}
+
+		run();
+
 	}
 
 	function mergeToRight(){
-		for(var i in blocks){
-					i = parseInt(i);
-					mergeOrMove(blocks, i,(i + (gameGrid - 1) - (i%gameGrid)));
+		for(var x=gameGrid-2;x>=0;x--){
+			for(var y=0;y<gameGrid;y++){
+				if(blocks[y*gameGrid+x]){
+					var dest = x;
+					var alt;
+					for(var z=x+1;z<gameGrid;z++){
+						if(blocks[y*gameGrid+z]){
+							alt = dest;
+							dest = z;
+							break;
+						}else{
+							dest = z;
+						}
+					}
+					
+					var i = y*gameGrid+dest;
+					mergeOrMove(blocks, y*gameGrid+x, i, y*gameGrid+alt);	
 				}
-				run();		
+				
+			}
+		}
+
+		run();
 	}
 
 	function mergeToBottom(){
-		for(var i in blocks){
-			i = parseInt(i);
-			mergeOrMove(blocks, i, ((gameGrid-1)*gameGrid+(i%gameGrid)));
+		for(var y=gameGrid-2;y>=0;y--){
+			for(var x=0;x<gameGrid;x++){
+				if(blocks[y*gameGrid+x]){
+					var dest = y;
+					var alt;
+					for(var z=y+1;z<gameGrid;z++){
+						if(blocks[z*gameGrid+x]){
+							alt = dest;
+							dest = z;
+							break;
+						}else{
+							dest = z;
+						}
+					}
+					
+					var i = dest*gameGrid + x;
+					mergeOrMove(blocks, y*gameGrid+x, i, alt*gameGrid + x);	
+				}
+				
+			}
 		}
+
 		run();
 	}
 
@@ -290,6 +348,10 @@ Block.prototype = {
 		return this._value;
 	},
 	moveTo : function(v){
+		if(v >= gameGrid*gameGrid){
+			console.log("error!");
+			return;
+		}
 		console.log("moveTo : "+v);
 		this._x_cur_pos = this._x_grid*this._width;
 		this._y_cur_pos = this._y_grid*this._height;

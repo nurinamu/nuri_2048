@@ -37,6 +37,7 @@ GameThread = function(doc_){
 	})();
 
 	function createNewBlock(){
+		console.log("createNewBlock!");
 		if(Object.keys(blocks).length >= gameGrid*gameGrid){
 			console.log("game is end!");
 			return;
@@ -44,8 +45,7 @@ GameThread = function(doc_){
 
 		var newPos = randomNum(gameGrid*gameGrid);
 		if(blocks[newPos]){
-			console.log("skip");
-			return;
+			return createNewBlock();
 		}
 		var newBlock = new Block();
 		setPos(newBlock, newPos);
@@ -54,7 +54,7 @@ GameThread = function(doc_){
 	function setPos(block, newPos){
 		block.pos(newPos);
 		blocks[newPos] = block;
-		console.log("created["+(Object.keys(blocks).length)+"] : "+block.pos());
+		//console.log("created["+(Object.keys(blocks).length)+"] : "+block.pos());
 	}
 
 	function randomNum(max){
@@ -62,7 +62,7 @@ GameThread = function(doc_){
 	}
 
 	function run(){
-		console.log("inside run");
+		//console.log("inside run");
 		if(!isLiveFlag && timer === undefined){
 			timer = setInterval(loop, 1000/100);	
 		
@@ -126,7 +126,7 @@ GameThread = function(doc_){
 	}
 
 	function stop(){
-		console.log("stop");
+		//console.log("stop");
 		clearInterval(timer);
 		timer = undefined;
 		isLiveFlag = false;
@@ -139,7 +139,7 @@ GameThread = function(doc_){
 		}
 
 		//움직임이 하나도 없는 상태에서는 블럭이 생성되서는 안된다.
-		console.log("hasMoving? : "+hasMoving());
+		// console.log("hasMoving? : "+hasMoving());
 		if(hasMoving()) {
 			createNewBlock();
 		}
@@ -183,7 +183,7 @@ GameThread = function(doc_){
 	}
 
 	function move(keyCode){
-		console.log(keyCode);
+		// console.log(keyCode);
 		switch(keyCode){
 			case 37 : //to left
 				mergeToLeft();		
@@ -345,7 +345,7 @@ Block = function(){
 Block.prototype = {
 	pos : function(v){
 		if(v){
-			console.log(this._pos+"==>"+v);
+			//console.log(this._pos+"==>"+v);
 			this._pos = v;
 			this._x_grid = this._pos % gameGrid;
 			this._y_grid = Math.floor(this._pos/gameGrid);
@@ -367,7 +367,7 @@ Block.prototype = {
 			console.log("error!");
 			return;
 		}
-		console.log("moveTo : "+v);
+		// console.log("moveTo : "+v);
 		this._x_cur_pos = this._x_grid*this._width;
 		this._y_cur_pos = this._y_grid*this._height;
 		this._pos = v;

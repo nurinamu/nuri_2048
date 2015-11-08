@@ -3,11 +3,7 @@ var newGame;
 var gameGrid = 4;
 
 function main(){
-	
 	newGame = new GameThread(window);
-	
-	
-
 	
 	// newGame.run();
 }
@@ -22,6 +18,7 @@ GameThread = function(doc_){
 	var doc;
 	var gameCanvas;
 	var ctx;
+	var _hasMoving;
 
 	(function(){
 		doc = doc_.document;
@@ -76,13 +73,12 @@ GameThread = function(doc_){
 					blocks[i].move();	
 				}
 			}
+			hasMoving(false);
 		}else{
 			console.log("thread is already started.");
 		}
 		
 	}
-
-	
 
 	function loop(){
 		clear();
@@ -102,6 +98,7 @@ GameThread = function(doc_){
 			// console.log("["+blocks[i].pos()+"]isMoving["+i+"]"+blocks[i].isMoving());
 			if(blocks[i].isMoving()){
 				isMoving = true;
+				hasMoving(true);
 			}
 
 			blocks[i].move();
@@ -120,18 +117,31 @@ GameThread = function(doc_){
 		return isMoving;
 	}
 
+	function hasMoving(v){
+		if(v === undefined){
+			return _hasMoving;
+		}else{
+			_hasMoving = v;
+		}
+	}
+
 	function stop(){
 		console.log("stop");
 		clearInterval(timer);
 		timer = undefined;
 		isLiveFlag = false;
 
-		createNewBlock();
-
+		//createNewBlock();
 		for(var i in blocks){
 			if(!blocks[i].isLive()){
 				delete blocks[i];
 			}
+		}
+
+		//움직임이 하나도 없는 상태에서는 블럭이 생성되서는 안된다.
+		console.log("hasMoving? : "+hasMoving());
+		if(hasMoving()) {
+			createNewBlock();
 		}
 
 		drawCanvas();
@@ -143,6 +153,7 @@ GameThread = function(doc_){
 	}
 
 	function mergeOrMove(blocks, oldPos, newPos, altPos){
+		var isMerged = false;
 		if(oldPos != newPos){
 			if(blocks[newPos]){//block이 목표점에 있는 경우
 				if(blocks[newPos].value() == blocks[oldPos].value()){//머지?
@@ -150,6 +161,7 @@ GameThread = function(doc_){
 					blocks[newPos].value(blocks[newPos].value()*2);
 					blocks[oldPos].value(blocks[oldPos].value()*2);
 					blocks[newPos+'_d'] = blocks[newPos];
+					isMerged = true;
 				}else{//alt
 					if(altPos != undefined && !isNaN(altPos)){
 						//alt가 이전 값이랑 동일하면 do nothing!
@@ -166,6 +178,8 @@ GameThread = function(doc_){
 			delete blocks[oldPos];
 			blocks[newPos].moveTo(newPos);	
 		}
+
+		return isMerged;
 	}
 
 	function move(keyCode){
@@ -189,6 +203,7 @@ GameThread = function(doc_){
 	}
 
 	function mergeToLeft(){
+
 		for(var x=1;x<gameGrid;x++){
 			for(var y=0;y<gameGrid;y++){
 				if(blocks[y*gameGrid+x]){
@@ -314,8 +329,8 @@ Block = function(){
 	this._value = 2;
 	this._pos = 0;
 
-	this._width = 120;
-	this._height = 120;
+	this._width = 60;
+	this._height = 60;
 	this._x_cur_pos = 0;
 	this._y_cur_pos = 0;
 	this._isMoving = false;

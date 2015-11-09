@@ -1,0 +1,13 @@
+#game_div {
+	position :fixed;
+	top : 10;
+	left : 10;
+	width : 480px;
+	height : 480px;
+}
+
+#point_div {
+	position : fixed;
+	top : 10;
+	right : 0;
+}

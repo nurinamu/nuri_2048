@@ -2,9 +2,16 @@
 <html>
 	<head>
 		<title>Nurinamu's 2048</title>
+		<link rel="stylesheet" type="text/css" href="css/2048.css">
+		<script type="text/javascript" src="js/block.js"></script>
 		<script type="text/javascript" src="js/game.js"></script>
 	</head>
 	<body onload="javascript:main()">
-		<canvas id="game_canvas" width=600 height=600></canvas>
+		<div id="game_div">
+			<canvas id="game_canvas" width=480 height=480></canvas>
+		</div>		
+		<div id="point_div">
+			<canvas id="point_canvas" width=200 height=100></canvas>
+		</div>
 	</body>
 </html>

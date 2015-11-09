@@ -277,6 +277,7 @@ GameThread = function(doc_){
 	}
 
 	function move(keyCode){
+		if(isLiveFlag) return;
 		// console.log(keyCode);
 		switch(keyCode){
 			case 37 : //to left

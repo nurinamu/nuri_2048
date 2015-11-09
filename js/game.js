@@ -28,7 +28,9 @@ GameThread = function(doc_){
 		doc = doc_.document;
 		console.log("init");
 		blocks = {};
+
 		initCtx();
+		initAudio();
 
 		//initial block
 		createNewBlock();
@@ -45,6 +47,44 @@ GameThread = function(doc_){
 
 		pointCanvas = doc.getElementById('point_canvas');
 		pointCtx = pointCanvas.getContext('2d');
+	}
+
+	var audioCtx;
+	var audioList;
+
+	function initAudio(){
+		try {
+			// Fix up for prefixing
+			window.AudioContext = window.AudioContext||window.webkitAudioContext;
+			audioCtx = new AudioContext();
+
+			var bufLoader = new BufferLoader(
+				audioCtx,
+				['/audio/effects/merge.mp3'],
+				function(audioList_){
+					audioList = audioList_;
+					console.log('audio is ready!');
+				}
+			);
+			bufLoader.load();
+		} catch(e) {
+			console.log(e);
+			//alert('Web Audio API is not supported in this browser');
+		}
+	}
+
+	function playSound(idx){
+		if(audioCtx){
+			var soundBuffer = audioCtx.createBufferSource();
+			soundBuffer.buffer = audioList[idx];
+			soundBuffer.connect(audioCtx.destination);
+			if(soundBuffer){
+				soundBuffer.start(0);
+			}else{
+				console.error('failed to play the sound.');
+			}	
+		}
+		
 	}
 
 	function createNewBlock(){
@@ -158,10 +198,15 @@ GameThread = function(doc_){
 		isLiveFlag = false;
 
 		//createNewBlock();
+		var isMerged = false;
 		for(var i in blocks){
 			if(!blocks[i].isLive()){
 				delete blocks[i];
+				isMerged = true;
 			}
+		}
+		if(isMerged){
+			playSound(0);
 		}
 
 		//움직임이 하나도 없는 상태에서는 블럭이 생성되서는 안된다.

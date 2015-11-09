@@ -60,10 +60,13 @@ GameThread = function(doc_){
 
 			var bufLoader = new BufferLoader(
 				audioCtx,
-				['/audio/effects/merge.mp3'],
+				['/audio/bgm/bgm1.wav', 
+				'/audio/effects/nothing.mp3',
+				'/audio/effects/merge.mp3'],
 				function(audioList_){
 					audioList = audioList_;
 					console.log('audio is ready!');
+					playBgm();
 				}
 			);
 			bufLoader.load();
@@ -85,6 +88,20 @@ GameThread = function(doc_){
 			}	
 		}
 		
+	}
+
+	function playBgm(){
+		if(audioCtx){
+			var soundBuffer = audioCtx.createBufferSource();
+			soundBuffer.buffer = audioList[0];
+			soundBuffer.connect(audioCtx.destination);
+			soundBuffer.loop = true;
+			if(soundBuffer){
+				soundBuffer.start(0);
+			}else{
+				console.error('failed to play the sound.');
+			}	
+		}
 	}
 
 	function createNewBlock(){
@@ -206,7 +223,9 @@ GameThread = function(doc_){
 			}
 		}
 		if(isMerged){
-			playSound(0);
+			playSound(2);
+		}else{
+			playSound(1);
 		}
 
 		//움직임이 하나도 없는 상태에서는 블럭이 생성되서는 안된다.

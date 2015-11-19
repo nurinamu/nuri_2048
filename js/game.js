@@ -78,14 +78,17 @@ GameThread = function(doc_){
 
 	function playSound(idx){
 		if(audioCtx){
-			var soundBuffer = audioCtx.createBufferSource();
-			soundBuffer.buffer = audioList[idx];
-			soundBuffer.connect(audioCtx.destination);
-			if(soundBuffer){
-				soundBuffer.start(0);
-			}else{
-				console.error('failed to play the sound.');
-			}	
+			try{
+				var soundBuffer = audioCtx.createBufferSource();
+				soundBuffer.buffer = audioList[idx];
+				soundBuffer.connect(audioCtx.destination);
+				if(soundBuffer){
+					soundBuffer.start(0);
+				}else{
+					console.error('failed to play the sound.');
+				}		
+			}catch(e){}
+			
 		}
 		
 	}

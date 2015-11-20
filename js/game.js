@@ -60,7 +60,7 @@ GameThread = function(doc_){
 
 			var bufLoader = new BufferLoader(
 				audioCtx,
-				['audio/bgm/bgm1.wav', 
+				['audio/bgm/bgm1.mp3', 
 				'audio/effects/nothing.mp3',
 				'audio/effects/merge.mp3'],
 				function(audioList_){

@@ -8,6 +8,10 @@ function main(){
 	// newGame.run();
 }
 
+function isOn(cb_id){
+	return document.getElementById(cb_id).checked
+}
+
 GameThread = function(doc_){
 
 	var timer;
@@ -24,6 +28,8 @@ GameThread = function(doc_){
 
 	var _curPoint = 0;
 
+	var bgmBuffer;
+
 	(function(){
 		doc = doc_.document;
 		console.log("init");
@@ -39,7 +45,11 @@ GameThread = function(doc_){
 		doc.body.onkeydown = function(evt){
 			move(evt.keyCode);
 		};
+
+
 	})();
+
+	
 
 	function initCtx(){
 		gameCanvas = doc.getElementById('game_canvas');
@@ -77,7 +87,7 @@ GameThread = function(doc_){
 	}
 
 	function playSound(idx){
-		if(audioCtx){
+		if(audioCtx && isOn('cb_se')){
 			try{
 				var soundBuffer = audioCtx.createBufferSource();
 				soundBuffer.buffer = audioList[idx];
@@ -94,16 +104,28 @@ GameThread = function(doc_){
 	}
 
 	function playBgm(){
-		if(audioCtx){
-			var soundBuffer = audioCtx.createBufferSource();
-			soundBuffer.buffer = audioList[0];
-			soundBuffer.connect(audioCtx.destination);
-			soundBuffer.loop = true;
-			if(soundBuffer){
-				soundBuffer.start(0);
-			}else{
-				console.error('failed to play the sound.');
-			}	
+		if(audioCtx && isOn('cb_bgm')){
+			if(bgmBuffer == undefined){
+				bgmBuffer = audioCtx.createBufferSource();
+				bgmBuffer.buffer = audioList[0];
+				bgmBuffer.connect(audioCtx.destination);
+				bgmBuffer.loop = true;
+				if(bgmBuffer){
+					bgmBuffer.start(0);
+				}else{
+					console.error('failed to play the sound.');
+					bgmBuffer = undefined;
+				}	
+			}
+		}else{
+			stopBgm();
+		}
+	}
+
+	function stopBgm(){
+		if(bgmBuffer){
+			bgmBuffer.stop();
+			bgmBuffer = undefined;
 		}
 	}
 
@@ -159,6 +181,7 @@ GameThread = function(doc_){
 			drawPoint();
 		}
 		
+		playBgm();
 	};
 
 	function point(v){
@@ -177,29 +200,46 @@ GameThread = function(doc_){
 
 	function drawCanvas(){
 		var isMoving = false;
-		for(var i in blocks){
-			if(!blocks[i]){
-				continue;
-			}
-			// console.log("["+blocks[i].pos()+"]isMoving["+i+"]"+blocks[i].isMoving());
-			if(blocks[i].isMoving()){
-				isMoving = true;
-				hasMoving(true);
-			}
+		try{
+			for(var i in blocks){
+				if(!blocks[i]){
+					continue;
+				}
+				// console.log("["+blocks[i].pos()+"]isMoving["+i+"]"+blocks[i].isMoving());
+				if(blocks[i].isMoving()){
+					isMoving = true;
+					hasMoving(true);
+				}
 
-			blocks[i].move();
-			gameCtx.beginPath();
-			gameCtx.rect(
-				blocks[i].xCurPos(),
-				blocks[i].yCurPos(),
-				blocks[i].width(),
-				blocks[i].height()
-				)
-			gameCtx.stroke();
-			gameCtx.closePath();
-			gameCtx.font="40px dotum";
-			gameCtx.fillText(blocks[i].number(), blocks[i].xCurPos()+(blocks[i].width()/2)-10, blocks[i].yCurPos()+(blocks[i].height()/2)+15);
+				blocks[i].move();
+				gameCtx.beginPath();
+				if(isOn('cb_bc')){
+					gameCtx.fillStyle=blocks[i].fillColor();
+					gameCtx.fillRect(
+						blocks[i].xCurPos(),
+						blocks[i].yCurPos(),
+						blocks[i].width(),
+						blocks[i].height()
+						)
+					gameCtx.fillStyle="#666666";	
+				}else{
+					gameCtx.rect(
+						blocks[i].xCurPos(),
+						blocks[i].yCurPos(),
+						blocks[i].width(),
+						blocks[i].height()
+						)
+				}
+				gameCtx.stroke();
+				gameCtx.closePath();
+				gameCtx.font="40px dotum";
+				gameCtx.fillText(blocks[i].number(), blocks[i].xCurPos()+(blocks[i].width()/2)-10, blocks[i].yCurPos()+(blocks[i].height()/2)+15);
+			}	
+		}catch(e){
+			console.log(e);
+			return false;
 		}
+		
 		return isMoving;
 	}
 
@@ -420,6 +460,10 @@ GameThread = function(doc_){
 
 	GameThread.prototype.clear = function(){
 		clear();
+	}
+
+	GameThread.prototype.colorIdx = function(){
+		return colorIdx;
 	}
 };
 
